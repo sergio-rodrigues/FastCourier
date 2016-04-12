@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private SimpleCursorAdapter listAdapter;
     private DBHelper helper;
     private ListView list;
-    //private Courier courier;
+    private Courier courier;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         list = (ListView) findViewById(R.id.list);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         try {
-            final Courier courier = new Courier();
+            courier = new Courier();
             if (fab != null) {
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialogInterface, int i) {
 
                                         final String task = inputField.getText().toString();
-                                        if (courier.add(task)){
+                                        if (MainActivity.this.courier.add(task)){
                                             new DBHelper(MainActivity.this).addTask(task);
                                             MainActivity.this.listAdapter.getCursor().requery();
                                         }
@@ -76,5 +77,15 @@ public class MainActivity extends AppCompatActivity {
 
         list.setAdapter(listAdapter);
 
+    }
+    public void onDoneButtonClick(View view) {
+        View v = (View) view.getParent();
+        TextView taskTextView = (TextView) v.findViewById(R.id.taskTextView);
+        String task = taskTextView.getText().toString();
+        if (courier.delete(task)){
+            new DBHelper(MainActivity.this).delete(task);
+            MainActivity.this.listAdapter.getCursor().requery();
+        }
+        updateUI();
     }
 }
